@@ -1,0 +1,12 @@
+CSC10003
+Lap trinh huong doi tuong
+22127190,Huynh Cong Van,3
+22127307,Pham Thanh Nhan,9
+22127294,Ho Phuoc Nghia,10
+22127293,Duong Trung Nghia,9.5
+22192484,Duong Phuoc Nghia,6
+22127111,Boi An Nghia,8
+22127285,Nguyen Huu Nam,8
+22127283,Lai Ngoc Phuong Nam,7
+22127142,Huynh Cong Hieu,2
+22127141,Huynh Cong Hieu,5
