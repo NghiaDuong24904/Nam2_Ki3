@@ -1,0 +1,188 @@
+[
+    {
+        "id": "851c8a7f358dc592",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "83a0c2e840cfe343",
+        "type": "mqtt in",
+        "z": "851c8a7f358dc592",
+        "name": "",
+        "topic": "Hoten",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "778c2a2638ad76cb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 390,
+        "y": 280,
+        "wires": [
+            [
+                "f4431891c49e4e02"
+            ]
+        ]
+    },
+    {
+        "id": "810304942c1a09d2",
+        "type": "mqtt out",
+        "z": "851c8a7f358dc592",
+        "name": "",
+        "topic": "MSSV",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "778c2a2638ad76cb",
+        "x": 570,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "7213b366baa70399",
+        "type": "ui_text_input",
+        "z": "851c8a7f358dc592",
+        "name": "",
+        "label": "Input ID",
+        "tooltip": "",
+        "group": "c711ee676ce9d624",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "mode": "text",
+        "delay": 300,
+        "topic": "topic",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "msg",
+        "x": 400,
+        "y": 100,
+        "wires": [
+            [
+                "8d71f9659f917e9d"
+            ]
+        ]
+    },
+    {
+        "id": "f4431891c49e4e02",
+        "type": "ui_text",
+        "z": "851c8a7f358dc592",
+        "group": "c711ee676ce9d624",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Output Name",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 590,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "7c1d7b16fcfe7b16",
+        "type": "ui_button",
+        "z": "851c8a7f358dc592",
+        "name": "",
+        "group": "c711ee676ce9d624",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Ấn gửi",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "mssv",
+        "payloadType": "flow",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 390,
+        "y": 180,
+        "wires": [
+            [
+                "810304942c1a09d2"
+            ]
+        ]
+    },
+    {
+        "id": "8d71f9659f917e9d",
+        "type": "function",
+        "z": "851c8a7f358dc592",
+        "name": "NhậnID",
+        "func": "flow.set(\"mssv\", msg.payload);",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "778c2a2638ad76cb",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "c711ee676ce9d624",
+        "type": "ui_group",
+        "name": "Home",
+        "tab": "e4c2ff9c8ae9fd83",
+        "order": 2,
+        "disp": true,
+        "width": "8",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "e4c2ff9c8ae9fd83",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    }
+]

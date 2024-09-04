@@ -1,0 +1,225 @@
+﻿USE QL_DeTai
+GO
+
+CREATE FUNCTION Dem_DTTG(@MAGV INT)
+RETURNS INT
+AS
+BEGIN
+	DECLARE @Count INT
+	SELECT @Count = COUNT(DISTINCT MADT)
+	FROM THAMGIADT tgdt
+	WHERE tgdt.MAGV = @MAGV
+	RETURN @Count
+END
+GO
+
+CREATE FUNCTION Dem_CV(@MAGV INT)
+RETURNS INT
+AS
+BEGIN
+	DECLARE @Count INT
+	SELECT @Count = COUNT(*)
+	FROM CONGVIEC cv JOIN THAMGIADT tgdt ON cv.MADT = tgdt.MADT AND cv.SOTT = tgdt.STT  
+	WHERE tgdt.MAGV = @MAGV
+	RETURN @Count
+END
+GO
+
+CREATE FUNCTION Tongphucap_GV_DT(@MAGV INT, @MADT INT)
+RETURNS DECIMAL(18, 2)
+AS
+BEGIN
+    DECLARE @Total DECIMAL(18, 2)
+    SELECT @Total = SUM(PHUCAP)
+    FROM THAMGIADT tgdt
+    WHERE tgdt.MAGV = @MAGV AND tgdt.MADT = @MADT
+    RETURN @Total
+END
+GO
+
+CREATE FUNCTION Tongphucap_DT(@MADT INT)
+RETURNS DECIMAL(18, 2)
+AS
+BEGIN
+	DECLARE @Total DECIMAL(18, 2)
+	SELECT @Total = SUM(PHUCAP)
+	FROM THAMGIADT tgdt
+	WHERE tgdt.MADT = @MADT
+	RETURN @Total
+END
+GO
+
+CREATE FUNCTION Dem_CV_Dat(@MADT INT)
+RETURNS INT
+AS
+BEGIN
+	DECLARE @Count INT
+	SELECT @Count = COUNT(*)
+	FROM THAMGIADT tgdt
+	WHERE tgdt.MADT = @MADT AND tgdt.KETQUA = N'Đạt' 
+	RETURN @Count
+END
+GO
+
+CREATE FUNCTION Dem_CV_KoDat(@MADT INT)
+RETURNS INT
+AS
+BEGIN
+	DECLARE @Count INT
+	SELECT @Count = COUNT(*)
+	FROM THAMGIADT tgdt
+	WHERE tgdt.MADT = @MADT AND (tgdt.KETQUA = N'Không đạt' OR tgdt.KETQUA IS NULL)
+	RETURN @Count
+END
+GO
+
+CREATE PROCEDURE sp_KIEMTRATINHTRANG
+AS
+	SELECT DT.MADT,TENDT,TONGPHUCAP_THUCCHI,KINHPHI,
+		CASE 
+            WHEN TONGPHUCAP.TONGPHUCAP_THUCCHI = KINHPHI THEN N'Đủ kinh phí'
+            WHEN TONGPHUCAP.TONGPHUCAP_THUCCHI > KINHPHI THEN N'Vượt kinh phí'
+            WHEN TONGPHUCAP.TONGPHUCAP_THUCCHI < KINHPHI THEN N'Dư kinh phí'
+		END AS TinhTrang
+	FROM (SELECT TGDT.MADT,SUM(TGDT.PHUCAP) AS 'TONGPHUCAP_THUCCHI' 
+	FROM THAMGIADT AS TGDT
+	GROUP BY TGDT.MADT) AS TONGPHUCAP JOIN DETAI AS DT ON TONGPHUCAP.MADT = DT.MADT
+GO
+
+CREATE PROCEDURE sp_KIEMTRAXEPLOAI
+AS
+	SELECT dt.MADT,dt.TENDT,
+        CASE
+            WHEN CAST(TONG_DAT.TONGDAT AS FLOAT)  / COUNT(tgdt.STT) * 100 > 90 THEN N'Xuất sắc'
+            WHEN CAST(TONG_DAT.TONGDAT AS FLOAT)  / COUNT(tgdt.STT) * 100 >= 70 THEN N'Đạt'
+            ELSE N'Không đạt'
+        END AS XEPLOAI
+    FROM 
+        (SELECT TGDT.MADT, COUNT(*) AS TONGDAT
+         FROM THAMGIADT AS TGDT
+         WHERE TGDT.KETQUA = N'Đạt'
+         GROUP BY TGDT.MADT) AS TONG_DAT 
+    RIGHT JOIN THAMGIADT tgdt ON TONG_DAT.MADT = tgdt.MADT 
+    JOIN DETAI dt ON tgdt.MADT = dt.MADT
+    GROUP BY dt.MADT, dt.TENDT, TONG_DAT.TONGDAT
+	ORDER BY dt.MADT
+GO
+
+CREATE PROCEDURE sp_PHANCONGCONGVIEC
+    @MAGV INT,
+    @MADT INT,
+    @TENCV NVARCHAR(255),
+    @NGAYBD DATE,
+    @NGAYKT DATE
+AS
+IF (SELECT COUNT(*) 
+    FROM THAMGIADT 
+    WHERE MAGV = @MAGV AND MADT = @MADT) < 3
+BEGIN
+    INSERT INTO CONGVIEC (MADT, TENCV, NGAYBD, NGAYKT)
+    VALUES (@MADT, @TENCV, @NGAYBD, @NGAYKT);
+
+    DECLARE @SOTT INT;
+    SET @SOTT = SCOPE_IDENTITY();
+
+    INSERT INTO THAMGIADT (MAGV, MADT, STT)
+    VALUES (@MAGV, @MADT, @SOTT);
+
+    PRINT 'Task assigned successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Lecturer already assigned to 3 tasks in this project. Task not assigned.';
+END
+GO
+
+CREATE PROCEDURE sp_CapNhat_TRUONGKHOA
+    @MaKhoa INT,
+    @MaTruongKhoa INT
+AS
+DECLARE @ErrorMessage NVARCHAR(4000);
+
+IF NOT EXISTS (SELECT 1 FROM GIAOVIEN gv WHERE gv.MAGV = @MaTruongKhoa)
+BEGIN
+    SET @ErrorMessage = N'Mã trưởng khoa không thuộc tập giáo viên.';
+    PRINT @ErrorMessage;
+    RETURN;
+END
+
+IF EXISTS (SELECT 1 FROM KHOA k WHERE k.TRUONGKHOA = @MaTruongKhoa)
+BEGIN
+    SET @ErrorMessage = N'Trưởng khoa đang kiêm nhiệm trưởng 1 khoa khác.';
+    PRINT @ErrorMessage;
+    RETURN;
+END
+
+IF EXISTS (SELECT 1 FROM BOMON bm WHERE bm.TRUONGBM = @MaTruongKhoa)
+BEGIN
+    SET @ErrorMessage = N'Trưởng khoa đang kiêm nhiệm trưởng bộ môn.';
+    PRINT @ErrorMessage;
+    RETURN;
+END
+
+DECLARE @Age INT;
+SELECT @Age = DATEDIFF(YEAR, gv.NGSINH, GETDATE()) 
+FROM GIAOVIEN gv
+WHERE gv.MAGV = @MaTruongKhoa;
+
+IF @Age <= 37
+BEGIN
+    SET @ErrorMessage = N'Trưởng khoa phải trên 37 tuổi.';
+    PRINT @ErrorMessage;
+    RETURN;
+END
+
+IF NOT EXISTS (SELECT 1 FROM GIAOVIEN gv JOIN BOMON bm ON gv.MABM = bm.MABM JOIN KHOA k ON bm.MAKHOA = k.MAKHOA WHERE gv.MAGV = @MaTruongKhoa AND k.MAKHOA = @MaKhoa)
+BEGIN
+    SET @ErrorMessage = N'Trưởng khoa phải là giáo viên trong khoa.';
+    PRINT @ErrorMessage;
+    RETURN;
+END
+
+IF (SELECT COUNT(*) FROM DETAI dt WHERE dt.GVCNDT = @MaTruongKhoa) < 2
+BEGIN
+    SET @ErrorMessage = N'Trưởng khoa phải chủ nhiệm ít nhất là 2 đề tài.';
+    PRINT @ErrorMessage;
+    RETURN;
+END
+
+UPDATE KHOA
+SET TRUONGKHOA = @MaTruongKhoa
+WHERE MAKHOA = @MaKhoa;
+
+PRINT N'Cập nhật trưởng khoa thành công.';
+GO
+
+CREATE PROCEDURE sp_CapNhat_SOGV_BM
+AS
+    EXEC('ALTER TABLE dbo.BOMON ADD SOGV_BM INT');
+
+    EXEC('
+    UPDATE dbo.BOMON
+    SET SOGV_BM = (
+        SELECT COUNT(*)
+        FROM dbo.GIAOVIEN gv
+        WHERE gv.MaBM = dbo.BOMON.MaBM
+    )
+    ');
+
+
+    PRINT 'The SoGV_BM column has been added and updated successfully.';
+GO
+
+CREATE PROCEDURE sp_GENERATE_LECTURER_REPORT
+AS
+    SELECT 
+        gv.MAGV,
+        gv.HOTEN,
+        COUNT(tgdt.MADT) AS SODETAI
+    FROM 
+        GIAOVIEN gv
+    LEFT JOIN 
+        THAMGIADT tgdt ON gv.MAGV = tgdt.MAGV
+    GROUP BY 
+        gv.MAGV, gv.HOTEN;
+GO

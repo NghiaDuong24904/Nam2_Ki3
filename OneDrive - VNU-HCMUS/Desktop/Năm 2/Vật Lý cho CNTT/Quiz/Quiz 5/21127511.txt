@@ -1,0 +1,116 @@
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include "DHTesp.h"
+
+
+const int DHT_PIN = 15;
+
+DHTesp dhtSensor;
+
+const char* ssid = "Wokwi-GUEST";
+const char* password = "";
+
+//***Set server***
+const char* mqttServer = "broker.hivemq.com"; 
+int port = 1883;
+
+WiFiClient wifiClient;
+PubSubClient mqttClient(wifiClient);
+
+void wifiConnect() {
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println(" Connected!");
+}
+
+void mqttConnect() {
+  while(!mqttClient.connected()) {
+    Serial.println("Attemping MQTT connection...");
+    String clientId = "ESP32Client-";
+    clientId += String(random(0xffff), HEX);
+    if(mqttClient.connect(clientId.c_str())) {
+      Serial.println("connected");
+      
+      mqttClient.subscribe("MSSV");
+      //***Subscribe all topic you need***
+     
+    }
+    else {
+      Serial.println("try again in 5 seconds");
+      delay(5000);
+    }
+  }
+}
+
+//MQTT Receiver
+void callback(char* topic, byte* message, unsigned int length) {
+  Serial.println(topic);
+  String strMsg;
+  for(int i=0; i<length; i++) {
+    strMsg += (char)message[i];
+  }
+  Serial.println(strMsg);
+  char buffer[50];
+  if(strMsg ==  "21127158")
+  {
+    sprintf(buffer, " Lê Hoàng Sang");
+  }
+  else if(strMsg ==  "21127236")
+  {
+    sprintf(buffer, " Vũ Đình Chương");
+  }
+  else if(strMsg ==  "21127511")
+  {
+    sprintf(buffer, " Nguyễn Quốc Huy");
+  }
+  else
+  {
+    sprintf(buffer, "No ID/Name found");
+  }
+
+  mqttClient.publish("Hoten", buffer);
+  //***Code here to process the received package***
+
+}
+
+int led = 2;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.print("Connecting to WiFi");
+
+  wifiConnect();
+  mqttClient.setServer(mqttServer, port);
+  mqttClient.setCallback(callback);
+  mqttClient.setKeepAlive( 90 );
+
+  dhtSensor.setup(DHT_PIN, DHTesp::DHT22);
+  pinMode(led, OUTPUT);
+}
+
+
+void loop() {
+  if(!mqttClient.connected()) {
+    mqttConnect();
+  }
+  mqttClient.loop();
+
+  //***Publish data to MQTT Server***
+  // int temp = random(0,100);
+  TempAndHumidity data = dhtSensor.getTempAndHumidity();
+  
+  // sprintf(buffer, "%d", temp);
+  // mqttClient.publish("21127511/temperature", buffer);
+
+  // Serial.println("Temp: "+ String(data.temperature, 2) + "C");
+  // // sprintf(buffer, "%d", char(data.temperature));
+  // // mqttClient.publish("21127511/temperature", buffer);
+  // Serial.println("Humidity: "+ String(data.humidity, 1) + "%");
+  // // sprintf(buffer, "%d", char(data.humidity));
+  // mqttClient.publish("21127511/temperature", buffer);
+  Serial.println(("---"));
+  delay(1000); // this speeds up the simulation
+}

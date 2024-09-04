@@ -1,0 +1,314 @@
+[
+    {
+        "id": "120de38e2ddaf9cf",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d95adc0eb70faadc",
+        "type": "ui_form",
+        "z": "120de38e2ddaf9cf",
+        "name": "",
+        "label": "Sign In",
+        "group": "a2c555e393605a14",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "Tên đăng nhập",
+                "value": "Username",
+                "type": "text",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Mật khẩu",
+                "value": "Password",
+                "type": "text",
+                "required": true,
+                "rows": null
+            }
+        ],
+        "formValue": {
+            "Username": "",
+            "Password": ""
+        },
+        "payload": "",
+        "submit": "submit",
+        "cancel": "cancel",
+        "topic": "payload",
+        "topicType": "msg",
+        "splitLayout": "",
+        "className": "",
+        "x": 140,
+        "y": 1140,
+        "wires": [
+            [
+                "f2fd2840350fd1d5",
+                "b5eeec29cc1dfd51"
+            ]
+        ]
+    },
+    {
+        "id": "f2fd2840350fd1d5",
+        "type": "debug",
+        "z": "120de38e2ddaf9cf",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 360,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "b5eeec29cc1dfd51",
+        "type": "function",
+        "z": "120de38e2ddaf9cf",
+        "name": "Kiểm tra",
+        "func": "var username = msg.payload.Username;\nvar password = msg.payload.Password;\nvar success;\nif(username == \"admin\" && password == \"admin\")\n    msg.payload = \"Đăng nhập thành công\";\nelse \n    msg.payload = \"Đăng nhập thất bại\";\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 1300,
+        "wires": [
+            [
+                "27ac084c7c7c7ea4",
+                "c388fedaca4681f2",
+                "94c06aeb340399f0"
+            ]
+        ]
+    },
+    {
+        "id": "27ac084c7c7c7ea4",
+        "type": "debug",
+        "z": "120de38e2ddaf9cf",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 1100,
+        "wires": []
+    },
+    {
+        "id": "c388fedaca4681f2",
+        "type": "ui_toast",
+        "z": "120de38e2ddaf9cf",
+        "position": "bottom right",
+        "displayTime": "3",
+        "highlight": "",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "topic": "",
+        "name": "",
+        "x": 610,
+        "y": 1180,
+        "wires": []
+    },
+    {
+        "id": "90635132569d77c5",
+        "type": "ui_ui_control",
+        "z": "120de38e2ddaf9cf",
+        "name": "",
+        "events": "all",
+        "x": 800,
+        "y": 1300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "94c06aeb340399f0",
+        "type": "function",
+        "z": "120de38e2ddaf9cf",
+        "name": "function 2",
+        "func": "if(msg.payload == \"Đăng nhập thành công\")\n    msg.payload = {\"tab\": \"Home\"};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 1300,
+        "wires": [
+            [
+                "90635132569d77c5"
+            ]
+        ]
+    },
+    {
+        "id": "c62d606e2bd86679",
+        "type": "ui_text",
+        "z": "120de38e2ddaf9cf",
+        "group": "ca039645fa88153e",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Họ và tên ",
+        "format": "{{msg.name}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 780,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "2fe50fefdbac7313",
+        "type": "ui_text",
+        "z": "120de38e2ddaf9cf",
+        "group": "ca039645fa88153e",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "MSSV",
+        "format": "{{msg.mssv}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 770,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "4fa59749e72c451b",
+        "type": "ui_text",
+        "z": "120de38e2ddaf9cf",
+        "group": "ca039645fa88153e",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Lớp",
+        "format": "{{msg.cla}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 770,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "9ef02c3caa96330d",
+        "type": "function",
+        "z": "120de38e2ddaf9cf",
+        "name": "Thông tin ",
+        "func": "msg.name = \"Nguyễn Quốc Huy\";\nmsg.mssv = \"21127511\";\nmsg.cla = \"21CLC02\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 940,
+        "wires": [
+            [
+                "c62d606e2bd86679",
+                "2fe50fefdbac7313",
+                "4fa59749e72c451b"
+            ]
+        ]
+    },
+    {
+        "id": "9395fa53b9b94c56",
+        "type": "inject",
+        "z": "120de38e2ddaf9cf",
+        "name": "Hoạt động",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 940,
+        "wires": [
+            [
+                "9ef02c3caa96330d"
+            ]
+        ]
+    },
+    {
+        "id": "a2c555e393605a14",
+        "type": "ui_group",
+        "name": "Login",
+        "tab": "e4c2ff9c8ae9fd83",
+        "order": 5,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "ca039645fa88153e",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "3442e7a119f3d401",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "e4c2ff9c8ae9fd83",
+        "type": "ui_tab",
+        "name": "Login",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "3442e7a119f3d401",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "order": 2,
+        "disabled": false,
+        "hidden": false
+    }
+]
